@@ -1,0 +1,518 @@
+{
+  "name": "YMCA Fitness Studio",
+  "nodes": [
+    {
+      "parameters": {
+        "object": "deal"
+      },
+      "type": "n8n-nodes-base.pipedriveTrigger",
+      "typeVersion": 1,
+      "position": [
+        -1920,
+        -220
+      ],
+      "id": "953441e3-e918-4707-87db-e0cb236fa8e8",
+      "name": "Pipedrive Trigger",
+      "webhookId": "c035c832-6881-4025-9bf4-7b60458b8040",
+      "notesInFlow": true,
+      "credentials": {
+        "pipedriveApi": {
+          "id": "LieBe4ytDNFlwRwu",
+          "name": "Pipedrive account"
+        }
+      },
+      "notes": "Deal update"
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "select": "user",
+        "user": {
+          "__rl": true,
+          "value": "U088RFQF6E5",
+          "mode": "list",
+          "cachedResultName": "khasanjar"
+        },
+        "text": "={{ $json.note }}",
+        "otherOptions": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        -680,
+        -260
+      ],
+      "id": "d95d44d9-281c-419a-80ab-8d6887ba66d8",
+      "name": "Slack",
+      "webhookId": "311e956e-19ea-4677-8564-13464b4f3129",
+      "notesInFlow": true,
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "9g7K9VV5yVwiOF5F",
+          "name": "Slack account"
+        }
+      },
+      "notes": "Notification for a salesperson"
+    },
+    {
+      "parameters": {
+        "fromEmail": "cisspuser@mail.ru",
+        "toEmail": "={{ $json.email[0].value }}",
+        "subject": "Welcome to YMCA Fitness Studio!",
+        "emailFormat": "text",
+        "text": "=My congratulation for you.\nHello  {{ $json.name }}.",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        -500,
+        260
+      ],
+      "id": "5dac632e-05e4-41fb-ade3-844b995ea55e",
+      "name": "Send Email",
+      "notesInFlow": true,
+      "credentials": {
+        "smtp": {
+          "id": "ziTkHcek3FiSdMNE",
+          "name": "SMTP account"
+        }
+      },
+      "notes": "Email to a happy customer"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "6dd3a1c0-0917-4407-a40f-5df61cc56c5e",
+              "leftValue": "={{ $json['current'].stage_order_nr }}",
+              "rightValue": "={{ $json['previous'].stage_order_nr }}",
+              "operator": {
+                "type": "number",
+                "operation": "notEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {
+          "ignoreCase": false
+        }
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -1700,
+        -220
+      ],
+      "id": "af384a23-b4da-4706-aacd-b56dbd97441b",
+      "name": "If",
+      "notesInFlow": true,
+      "notes": "Check if added.deal"
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C0891K8H064",
+          "mode": "list",
+          "cachedResultName": "all-my-test-company"
+        },
+        "text": "=Colleagues, Сlient purchased a subscription.\nClosing the deal with {{ $json.current.person_name }}\n",
+        "otherOptions": {
+          "mrkdwn": false
+        }
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        -1040,
+        100
+      ],
+      "id": "e7cb021c-23a0-4318-80c2-cf2686c1431b",
+      "name": "Slack1",
+      "webhookId": "43840cb4-eae1-4630-a088-b8c3abc553d6",
+      "notesInFlow": true,
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "9g7K9VV5yVwiOF5F",
+          "name": "Slack account"
+        }
+      },
+      "notes": "Notification to company's channel"
+    },
+    {
+      "parameters": {
+        "resource": "activity",
+        "subject": "Make an call to introduce the YMCA Fitness Studio",
+        "type": "call",
+        "additionalFields": {
+          "deal_id": "={{ $json.meta.id }}",
+          "due_date": "={{ new Date(new Date($json.current.update_time).setDate(new Date($json.current.update_time).getDate() + 1)).toLocaleDateString(\"en-US\", { month: \"2-digit\", day: \"2-digit\", year: \"2-digit\" }) }}",
+          "note": "={{ \n\"Call activity. \\n\\n\"+\n\"Please call to client and record any key points discussed.\\n\\n\" + \n  \"Lead info:\\n\" + \n  \"- Name: \" + $json.current.person_name \n}}"
+        }
+      },
+      "type": "n8n-nodes-base.pipedrive",
+      "typeVersion": 1,
+      "position": [
+        -1040,
+        -320
+      ],
+      "id": "165784a6-2432-4aa7-8c85-b07b20095829",
+      "name": "Pipedrive",
+      "notesInFlow": true,
+      "alwaysOutputData": false,
+      "credentials": {
+        "pipedriveApi": {
+          "id": "LieBe4ytDNFlwRwu",
+          "name": "Pipedrive account"
+        }
+      },
+      "notes": "Create a call task"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.current.stage_order_nr }}",
+                    "rightValue": 1,
+                    "operator": {
+                      "type": "number",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "A new lead"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "67b4e4d2-54d0-4561-a4bf-b0b9de819153",
+                    "leftValue": "={{ $json.current.stage_order_nr }}",
+                    "rightValue": 2,
+                    "operator": {
+                      "type": "number",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Appointment "
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        -1420,
+        -240
+      ],
+      "id": "654f4b0a-b6b2-4770-81d7-74b449e2d3cf",
+      "name": "Switch",
+      "notesInFlow": true,
+      "notes": "check stage"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "76faa442-476a-4f43-8580-14ac43c11797",
+              "leftValue": "={{ $json.current.status }}",
+              "rightValue": "={{ $json.previous.status }}",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            },
+            {
+              "id": "adbb66fd-ec10-4504-989d-3258f668a242",
+              "leftValue": "={{ $json.current.status }}",
+              "rightValue": "won",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -1420,
+        160
+      ],
+      "id": "e00c581d-8151-4e95-a8f5-212adec22e29",
+      "name": "If4",
+      "notesInFlow": true
+    },
+    {
+      "parameters": {
+        "resource": "activity",
+        "subject": "Schedule a meeting to discuss the client’s needs",
+        "type": "Meeting",
+        "additionalFields": {
+          "deal_id": "={{ $json.meta.id }}",
+          "due_date": "={{ new Date(new Date($json.current.update_time).setDate(new Date($json.current.update_time).getDate() + 1)).toLocaleDateString(\"en-US\", { month: \"2-digit\", day: \"2-digit\", year: \"2-digit\" }) }}",
+          "note": "={{ \n  \"Meeting activity.\\n\\n\"+\n\"Make note of any questions of the client about the membership.\\n\\n\" + \n  \"Lead info:\\n\" + \n  \"- Name: \" + $json.current.person_name\n}}"
+        }
+      },
+      "type": "n8n-nodes-base.pipedrive",
+      "typeVersion": 1,
+      "position": [
+        -1040,
+        -160
+      ],
+      "id": "2cef3ce6-8dc9-4b4d-be02-e6fc504d6fa8",
+      "name": "Pipedrive1",
+      "notesInFlow": true,
+      "credentials": {
+        "pipedriveApi": {
+          "id": "LieBe4ytDNFlwRwu",
+          "name": "Pipedrive account"
+        }
+      },
+      "notes": "Create a meeting task"
+    },
+    {
+      "parameters": {
+        "resource": "person",
+        "operation": "get",
+        "personId": "={{ $json.current.person_id }}"
+      },
+      "type": "n8n-nodes-base.pipedrive",
+      "typeVersion": 1,
+      "position": [
+        -1040,
+        280
+      ],
+      "id": "31a34ea3-6102-422f-990d-37883569bef3",
+      "name": "Pipedrive2",
+      "notesInFlow": true,
+      "credentials": {
+        "pipedriveApi": {
+          "id": "LieBe4ytDNFlwRwu",
+          "name": "Pipedrive account"
+        }
+      },
+      "notes": "Get email of client"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "68e1a0c1-47fa-4052-a3c1-a2c0180d9fae",
+              "leftValue": "={{ $json.email }}",
+              "rightValue": "",
+              "operator": {
+                "type": "array",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -780,
+        280
+      ],
+      "id": "f7c6295c-cae8-4b04-b56b-317277556c4e",
+      "name": "If1",
+      "notesInFlow": true,
+      "notes": "Check if client enail is exist"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Pipedrive Trigger": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Slack": {
+      "main": [
+        []
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "If4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Email": {
+      "main": [
+        []
+      ]
+    },
+    "Pipedrive": {
+      "main": [
+        [
+          {
+            "node": "Slack",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If4": {
+      "main": [
+        [
+          {
+            "node": "Slack1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Pipedrive2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Pipedrive",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Pipedrive1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pipedrive1": {
+      "main": [
+        [
+          {
+            "node": "Slack",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pipedrive2": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "Send Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "versionId": "ed44a74e-72b6-42c5-aba9-f0b8df6d31f8",
+  "meta": {
+    "instanceId": "6379e0f87adbeab0ff9845e24079bf8b02fdf5c7391acf36381e4b9ae203a2c8"
+  },
+  "id": "aY08wFnBBjkjgJ8f",
+  "tags": [
+    {
+      "name": "JS intern 2nd test task",
+      "id": "UPoqKxEFkRpgGuzN",
+      "createdAt": "2025-01-14T09:40:37.318Z",
+      "updatedAt": "2025-01-14T09:40:37.318Z"
+    }
+  ]
+}
